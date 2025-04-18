@@ -58,5 +58,3 @@ end
 
 spawn(AntiAfk())
 spawn(JoinDiscord())
-
-print("Loaded Setup")
