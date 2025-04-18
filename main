@@ -1,0 +1,62 @@
+function JoinDiscord()
+    local discordInvite = "https://discord.gg/vWwRj5Dg7E"
+    local http_request = (syn and syn.request) or (http and http.request) or reques
+    local function getInviteCode(invite)
+        return string.match(invite, "discord%.gg/([%w]+)") or string.match(invite, "discord%.com/invite/([%w]+)")
+    end
+    local inviteCode = getInviteCode(discordInvite)
+    if http_request and inviteCode then
+        http_request({
+            Url = "http://127.0.0.1:6463/rpc?v=1",
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json",
+                ["Origin"] = "https://discord.com",
+            },
+            Body = game:GetService("HttpService"):JSONEncode({
+                cmd = "INVITE_BROWSER",
+                args = { code = inviteCode },
+                nonce = game:GetService("HttpService"):GenerateGUID(false),
+            }),
+        })
+        print(inviteCode)
+    else
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Executor Not Supported",
+            Text = "Join manually: " .. discordInvite,
+            Duration = 5,
+        })
+    end
+end
+
+function AntiAfk()
+    local BubbleGumAntiAfk = game:GetService("Players").LocalPlayer.PlayerScripts:FindFirstChild('AFK')
+    if BubbleGumAntiAfk then 
+       BubbleGumAntiAfk:Destroy()
+    end
+    for i, v in next, getconnections(game:GetService("Players").LocalPlayer.Idled) do
+        v:Disable()
+    end
+
+    local player = game:GetService("Players").LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    while task.wait(1) do
+        local originalPosition = humanoidRootPart.Position
+
+        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, 1)
+
+        task.wait(1)
+
+        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, 1)
+
+        task.wait(360)
+    end
+end
+
+
+spawn(AntiAfk())
+spawn(JoinDiscord())
+
+print("Loaded Setup")
